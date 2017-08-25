@@ -1,0 +1,79 @@
+<?php
+namespace UF\API\Provider;
+
+use UF\API\Model\UF;
+use Carbon\Carbon;
+use UF\API\Definition\Getter;
+
+/**
+ * Handles the getters' information and interacts with the database
+ * @author Aldarien
+ *
+ */
+class UFParser
+{
+	/**
+	 * Get from all getters specified
+	 * @param array $getters
+	 */
+	public function getAll(array $getters)
+	{
+		set_time_limit(10*60*60);
+		foreach ($getters as $getter) {
+			if (!is_a($getter, Getter::class)) {
+				continue;
+			}
+			$this->get($getter);
+		}
+	}
+	/**
+	 * Get all the data from the getter and saves what is not in the database.
+	 * @param Getter $getter
+	 */
+	public function get(Getter $getter)
+	{
+		$tz = new \DateTimeZone(config('app.timezone'));
+		for ($year = (int) date('Y'); $year > 1900; $year --) {
+			if ($this->checkYear($year)) {
+				continue;
+			}
+			$ufs = $getter->get($year);
+			if (!$ufs) {
+				continue;
+			}
+			
+			foreach ($ufs as $date => $value) {
+				$f = Carbon::parse($date, $tz);
+				$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $f->format('Y-m-d'))->findOne();
+				if (!$uf) {
+					$uf = \Model::factory('\UF\API\Model\UF')->create();
+					$uf->fecha = $f;
+					$uf->valor = $value;
+					$uf->save();
+				}
+			}
+			sleep(1 * 60);
+		}
+	}
+	/**
+	 * Checks if the year is saved in the database.
+	 * @param int $year
+	 * @return boolean
+	 */
+	public function checkYear(int $year)
+	{
+		$uf1 = \Model::factory('\UF\API\Model\UF')->where('fecha', $year . '-01-01')->findOne();
+		$y = date('Y');
+		if ($y == $year) {
+			$today = Carbon::today(new \DateTimeZone(config('app.timezone')));
+			$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $today->format('Y-m-d'))->findOne();
+		} else {
+			$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $year . '-12-31')->findOne();
+		}
+		if ($uf1 and $uf2) {
+			return true;
+		}
+		return false;
+	}
+}
+?>

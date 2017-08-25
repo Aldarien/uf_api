@@ -1,0 +1,28 @@
+{
+	"name" : "aldarien/ufapi",
+	"description" : "API to get UF(CLF) values and transform from $CLP",
+	"type" : "project",
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Aldarien",
+			"email" : "jpvial@gmail.com"
+		}
+	],
+	"require" : {
+		"aldarien/config" : "^1.0",
+		"aldarien/api" : "^1.0",
+		"j4mie/paris" : "^1.5",
+		"nesbot/carbon" : "^1.22",
+		"fabpot/goutte" : "^3.2"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "^6.3",
+		"kint-php/kint" : "^2.1"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"UF\\API\\" : "src",
+			"App\\" : "app"
+		}
+	}
+}

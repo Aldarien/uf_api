@@ -30,7 +30,7 @@ class UFAPITest extends TestCase
 	
 	public function testGetUfForDate()
 	{
-		$input = ['p' => 'uf', 'cmd' => 'value', 'date' => '2017-08-01'];
+		$input = ['cmd' => 'value', 'date' => '2017-08-01'];
 		$this->callApi($input);
 		
 		$this->assertIfStatusOk();
@@ -44,7 +44,7 @@ class UFAPITest extends TestCase
 	}
 	public function testGetUfsForYear()
 	{
-		$input = ['p' => 'uf', 'cmd' => 'list', 'year' => 2016];
+		$input = ['cmd' => 'list', 'year' => 2016];
 		$this->callApi($input);
 		
 		$this->assertIfStatusOk();
@@ -59,7 +59,7 @@ class UFAPITest extends TestCase
 	}
 	public function testHelp()
 	{
-		$input = ['p' => 'uf', 'cmd' => 'help'];
+		$input = ['cmd' => 'help'];
 		$this->callApi($input);
 		
 		$this->assertIfStatusOk();
@@ -71,7 +71,7 @@ class UFAPITest extends TestCase
 	public function testTransformToCLP()
 	{
 		$uf = 20;
-		$input = ['p' => 'uf', 'cmd' => 'transform', 'value' => $uf, 'date' => '2017-08-01', 'to' => 'clp'];
+		$input = ['cmd' => 'transform', 'value' => $uf, 'date' => '2017-08-01', 'to' => 'clp'];
 		$this->callApi($input);
 		
 		$this->assertIfStatusOK();

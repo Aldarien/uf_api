@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1c8f4f4c7269008199ce6ad69fa69164",
+    "hash": "09d06996b01ad84b670c4e2670132dda",
     "content-hash": "f5fcaabf46b1c23dc33170345ff74260",
     "packages": [
         {
@@ -53,16 +53,16 @@
         },
         {
             "name": "aldarien/config",
-            "version": "1.0.5",
+            "version": "1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Aldarien/config.git",
-                "reference": "2ad873ae180a451cfacc2fee86ac8097c3d38eb1"
+                "reference": "232347f3bbc65ffc1241233a49ad2d5931f41a49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Aldarien/config/zipball/2ad873ae180a451cfacc2fee86ac8097c3d38eb1",
-                "reference": "2ad873ae180a451cfacc2fee86ac8097c3d38eb1",
+                "url": "https://api.github.com/repos/Aldarien/config/zipball/232347f3bbc65ffc1241233a49ad2d5931f41a49",
+                "reference": "232347f3bbc65ffc1241233a49ad2d5931f41a49",
                 "shasum": ""
             },
             "require": {
@@ -92,7 +92,7 @@
                 }
             ],
             "description": "Config module for my apps",
-            "time": "2017-08-25 22:34:38"
+            "time": "2017-08-26 00:23:11"
         },
         {
             "name": "aldarien/contract",

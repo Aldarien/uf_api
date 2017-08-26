@@ -32,9 +32,8 @@ class UFParser
 	 */
 	public function get(Getter $getter)
 	{
-		$tz = new \DateTimeZone(config('app.timezone'));
 		for ($year = (int) date('Y'); $year > 1900; $year --) {
-			if ($this->checkYear($year)) {
+			/*if ($this->checkYear($year)) {
 				continue;
 			}
 			$ufs = $getter->get($year);
@@ -51,8 +50,10 @@ class UFParser
 					$uf->valor = $value;
 					$uf->save();
 				}
+			}*/
+			if ($this->getYear($getter, $year)) {
+				sleep(1 * 60);
 			}
-			sleep(1 * 60);
 		}
 	}
 	/**
@@ -74,6 +75,44 @@ class UFParser
 			return true;
 		}
 		return false;
+	}
+	public function findGetter(string $getter_name)
+	{
+		if ($class = config('getters.' . $getter_name . '.class')) {
+			return new $class();
+		}
+		return null;
+	}
+	public function listGetters()
+	{
+		$data = config('getters');
+		$getters = [];
+		foreach ($data as $get) {
+			$getters []= new $get['class']();
+		}
+		return $getters;
+	}
+	public function getYear(Getter $getter, int $year) {
+		if ($this->checkYear($year)) {
+			return false;
+		}
+		$ufs = $getter->get($year);
+		if (!$ufs) {
+			return false;
+		}
+		
+		$tz = new \DateTimeZone(config('app.timezone'));
+		foreach ($ufs as $date => $value) {
+			$f = Carbon::parse($date, $tz);
+			$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $f->format('Y-m-d'))->findOne();
+			if (!$uf) {
+				$uf = \Model::factory('\UF\API\Model\UF')->create();
+				$uf->fecha = $f;
+				$uf->valor = $value;
+				$uf->save();
+			}
+		}
+		return true;
 	}
 }
 ?>

@@ -1,14 +1,13 @@
 <?php
+use App\Controller\UFApi;
+
 include_once dirname(__DIR__) . '/bootstrap/autoload.php';
 
 if (get('p') !== false) {
     switch (get('p')) {
         case 'uf':
-            echo \App\Controller\UFApi::index();
+            echo UFApi::index();
             break;
-        case 'help':
-        	echo \App\Controller\UFApi::help();
-        	break;
         default:
             echo api(['test' => 'p not valid.'], 404);
             break;

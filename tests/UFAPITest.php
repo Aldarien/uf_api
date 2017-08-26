@@ -6,11 +6,12 @@ class UFAPITest extends TestCase
 {
 	protected $client;
 	
-	protected function startClient()
+	public function setUp()
 	{
 		$this->client = new Client();
 		$this->client->setHeader('Accept', 'application/json');
 	}
+	
 	protected function callApi($input)
 	{
 		$url = 'http://localhost/uf/?' . http_build_query($input);
@@ -29,9 +30,7 @@ class UFAPITest extends TestCase
 	
 	public function testGetUfForDate()
 	{
-		$this->startClient();
-		
-		$input = ['p' => 'uf', 'date' => '2017-08-01'];
+		$input = ['p' => 'uf', 'cmd' => 'value', 'date' => '2017-08-01'];
 		$this->callApi($input);
 		
 		$this->assertIfStatusOk();
@@ -45,16 +44,14 @@ class UFAPITest extends TestCase
 	}
 	public function testGetUfsForYear()
 	{
-		$this->startClient();
-		
-		$input = ['p' => 'uf', 'year' => 2016];
+		$input = ['p' => 'uf', 'cmd' => 'list', 'year' => 2016];
 		$this->callApi($input);
 		
 		$this->assertIfStatusOk();
 		
 		$data = $this->getData();
 		
-		$output = (object) ['total' => 362, 'ufs' => [59 => (object) ['value' => 25717.4]]];
+		$output = (object) ['total' => 366, 'ufs' => [59 => (object) ['value' => 25717.4]]];
 		$i = 59;
 		
 		$this->assertEquals($output->total, $data->total, 'Different amount of values found.');
@@ -62,9 +59,7 @@ class UFAPITest extends TestCase
 	}
 	public function testHelp()
 	{
-		$this->startClient();
-		
-		$input = ['p' => 'help'];
+		$input = ['p' => 'uf', 'cmd' => 'help'];
 		$this->callApi($input);
 		
 		$this->assertIfStatusOk();
@@ -72,6 +67,20 @@ class UFAPITest extends TestCase
 		$data = $this->getData();
 		
 		$this->assertObjectHasAttribute('commands', $data);
+	}
+	public function testTransformToCLP()
+	{
+		$uf = 20;
+		$input = ['p' => 'uf', 'cmd' => 'transform', 'value' => $uf, 'date' => '2017-08-01', 'to' => 'clp'];
+		$this->callApi($input);
+		
+		$this->assertIfStatusOK();
+		
+		$data = $this->getData();
+		
+		$this->assertEquals($input['date'], $data->date);
+		$result = $uf * 26593.89;
+		$this->assertEquals($result, $data->to);
 	}
 }
 ?>

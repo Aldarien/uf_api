@@ -32,7 +32,7 @@ class UFParser
 	public function get(Getter $getter)
 	{
         for ($year = (int) date('Y'); $year > 1900; $year --) {
-			if ($this->getYear($getter, $year)) {
+			if ($this->checkYear($year) and $this->getYear($getter, $year)) {
                 $this->addTime(60);
 				sleep(1 * 60);
 			}
@@ -77,10 +77,7 @@ class UFParser
 	}
 	public function getYear(Getter $getter, int $year) {
         $this->addTime(3*60);
-        if ($this->checkYear($year) ) {
-			return false;
-		}
-		$ufs = $getter->get($year);
+        $ufs = $getter->get($year);
 		if (!$ufs) {
 			return false;
 		}

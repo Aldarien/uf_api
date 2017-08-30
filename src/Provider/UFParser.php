@@ -18,7 +18,6 @@ class UFParser
 	 */
 	public function getAll(array $getters)
 	{
-		set_time_limit(10*60*60);
 		foreach ($getters as $getter) {
 			if (!is_a($getter, Getter::class)) {
 				continue;
@@ -32,26 +31,9 @@ class UFParser
 	 */
 	public function get(Getter $getter)
 	{
-		for ($year = (int) date('Y'); $year > 1900; $year --) {
-			/*if ($this->checkYear($year)) {
-				continue;
-			}
-			$ufs = $getter->get($year);
-			if (!$ufs) {
-				continue;
-			}
-			
-			foreach ($ufs as $date => $value) {
-				$f = Carbon::parse($date, $tz);
-				$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $f->format('Y-m-d'))->findOne();
-				if (!$uf) {
-					$uf = \Model::factory('\UF\API\Model\UF')->create();
-					$uf->fecha = $f;
-					$uf->valor = $value;
-					$uf->save();
-				}
-			}*/
+        for ($year = (int) date('Y'); $year > 1900; $year --) {
 			if ($this->getYear($getter, $year)) {
+                $this->addTime(60);
 				sleep(1 * 60);
 			}
 		}
@@ -66,8 +48,9 @@ class UFParser
 		$uf1 = \Model::factory('\UF\API\Model\UF')->where('fecha', $year . '-01-01')->findOne();
 		$y = date('Y');
 		if ($y == $year) {
-			$today = Carbon::today(new \DateTimeZone(config('app.timezone')));
-			$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $today->format('Y-m-d'))->findOne();
+            return false;
+			/*$today = Carbon::today(new \DateTimeZone(config('app.timezone')));
+			$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $today->format('Y-m-d'))->findOne();*/
 		} else {
 			$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $year . '-12-31')->findOne();
 		}
@@ -93,15 +76,16 @@ class UFParser
 		return $getters;
 	}
 	public function getYear(Getter $getter, int $year) {
-		if ($this->checkYear($year)) {
+        $this->addTime(3*60);
+        if ($this->checkYear($year) ) {
 			return false;
 		}
 		$ufs = $getter->get($year);
 		if (!$ufs) {
 			return false;
 		}
-		
-		$tz = new \DateTimeZone(config('app.timezone'));
+
+        $tz = new \DateTimeZone(config('app.timezone'));
 		foreach ($ufs as $date => $value) {
 			$f = Carbon::parse($date, $tz);
 			$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $f->format('Y-m-d'))->findOne();
@@ -114,5 +98,10 @@ class UFParser
 		}
 		return true;
 	}
+    protected function addTime($seconds)
+    {
+        $max = ini_get('max_execution_time');
+        set_time_limit($max + $seconds);
+    }
 }
 ?>

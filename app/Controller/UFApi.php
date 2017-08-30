@@ -59,7 +59,7 @@ class UFApi
 				self::load();
 				$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'))->findOne();
 			}
-            $output = ['ufs' => ['date' => $date->format('Y-m-d'), 'value' => $uf->valor], 'total' => 1];
+            $output = ['uf' => ['date' => $date->format('Y-m-d'), 'value' => $uf->valor], 'total' => 1];
             return api($output);
         }
     }
@@ -100,7 +100,7 @@ class UFApi
     	$year = input('year');
     	$month = input('month');
     	$day = input('day');
-    	
+
     	$today = Carbon::today($tz);
     	if ($year or $month or $day) {
     		if (!$year) {
@@ -205,7 +205,7 @@ class UFApi
     	];
     	return api($output);
     }
-    
+
     public static function setup()
     {
     	$start = microtime(true);
@@ -224,15 +224,23 @@ class UFApi
     	$getter = input('getter');
     	$parser = new UFParser();
     	$start = microtime(true);
-    	
+
     	$getters = [];
     	if ($getter == null) {
     		$getters = $parser->listGetters();
     	} else {
     		$getters = $parser->findGetter($getter);
     	}
+        if ($year == null) {
+            $date = input('date');
+            if ($date != null) {
+                $tz = new \DateTimeZone(config('app.timezone'));
+                $date = Carbon::parse($date, $tz);
+                $year = $date->year;
+            }
+        }
     	if ($year == null) {
-    		foreach ($getters as $getter) {
+            foreach ($getters as $getter) {
     			$parser->get($getter);
     		}
     	} else {
@@ -250,13 +258,13 @@ class UFApi
 		$year = input('year');
 		$month = input('month');
 		$day = input('day');
-		
+
 		$today = Carbon::today($tz);
 		if ($year or $month or $day) {
 			if ($year == null) {
 				$year = $today->year;
 			}
-			
+
 			if ($month != null) {
 				if ($day != null) {
 					$date = Carbon::createFromDate($year, $month, $day, $tz);
@@ -264,13 +272,13 @@ class UFApi
 					if ($date > $next_9) {
 						return api(false, 204);
 					} else {
-						$ufs = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'))->findMany();
+						$ufs = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'));
 					}
 				} else {
-					$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha')->findMany();
+					$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha');
 				}
 			} else {
-				$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '%')->orderByAsc('fecha')->findMany();
+				$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '%')->orderByAsc('fecha');
 			}
 		} else {
 			if ($date) {
@@ -279,19 +287,18 @@ class UFApi
 				if ($date > $next_9) {
 					return api(false, 204);
 				} else {
-					$ufs = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'))->findMany();
+					$ufs = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'));
 				}
 			} else {
-				$ufs = \Model::factory('\UF\API\Model\UF')->findMany();
+				$ufs = \Model::factory('\UF\API\Model\UF');
 			}
 		}
 		if (count($ufs) > 100) {
 			set_time_limit(count($ufs) * 3);
 		}
-		foreach ($ufs as $uf) {
-			$uf->delete();
-		}
-		$output = ['status' => 'ok', 'total' => count($ufs), 'time' => microtime(true) - $start];
+        $cnt = $ufs->count();
+		$status = ($ufs->deleteMany()) ? 'ok' : 'error';
+		$output = ['status' => $status, 'total' => $cnt, 'time' => microtime(true) - $start];
 		return api($output);
 	}
 }

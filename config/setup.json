@@ -1,0 +1,26 @@
+{
+	"models": {
+		"UF\\API\\Model\\UF": {
+			"table": "ufs",
+			"columns": {
+				"id": {
+					"type": "int",
+					"attributes": {
+						"primary": true,
+						"unsigned": true,
+						"null": false
+					}
+				},
+				"fecha": {
+					"type": "date"
+				},
+				"valor": {
+					"type": "double",
+					"attributes": {
+						"unsigned": true
+					}
+				}
+			}
+		}
+	}
+}

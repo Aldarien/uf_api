@@ -1,6 +1,7 @@
 {
 	"models": {
-		"UF\\API\\Model\\UF": {
+		"UF": {
+			"namespace": "UF\\API\\Model\\",
 			"table": "ufs",
 			"columns": {
 				"id": {

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class xmlns="http://xml.phpdox.net/src" full="UF\API\Model\UF" namespace="UF\API\Model" name="UF" abstract="false" final="false" start="14" end="40">
+  <file path="D:/git/uf_api/src/Model" file="UF.php" realpath="D:/git/uf_api/src/Model/UF.php" size="679" time="2017-09-20T20:02:07+02:00" unixtime="1505930527" sha1="ad31a8cf229e2333cd78ab15028b932150a1c29a" relative="Model/UF.php"/>
+  <docblock>
+    <description compact="UF handler, with Paris Model structure."/>
+    <author value="Aldarien"/>
+    <property value="int id;"/>
+    <property value="Carbon fecha;"/>
+    <property value="float valor;"/>
+  </docblock>
+  <extends full="Model" namespace="" name="Model" unresolved="true"/>
+  <member name="_table" default="'ufs'" type="string" visibility="public" static="true" line="20">
+    <docblock>
+      <description compact="Diferent table name from 'uf' for Paris"/>
+      <var type="string"/>
+    </docblock>
+  </member>
+  <method name="pesos" start="27" end="30" abstract="false" final="false" static="false" visibility="public">
+    <docblock>
+      <description compact="Transform UF(CLF) to $CLP"/>
+      <param type="float" variable="$ufs"/>
+      <return type="object">
+        <type full="UF\API\Model\number" namespace="UF\API\Model" name="number"/>
+      </return>
+    </docblock>
+    <parameter name="ufs" byreference="false" type="float"/>
+  </method>
+  <method name="ufs" start="36" end="39" abstract="false" final="false" static="false" visibility="public">
+    <docblock>
+      <description compact="Transform $CLP to UF(CLF)"/>
+      <param type="int" variable="$pesos"/>
+      <return type="object">
+        <type full="UF\API\Model\number" namespace="UF\API\Model" name="number"/>
+      </return>
+    </docblock>
+    <parameter name="pesos" byreference="false" type="int"/>
+  </method>
+</class>

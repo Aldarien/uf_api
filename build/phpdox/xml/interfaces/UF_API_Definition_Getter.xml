@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface xmlns="http://xml.phpdox.net/src" full="UF\API\Definition\Getter" namespace="UF\API\Definition" name="Getter" abstract="false" final="false" start="9" end="16">
+  <file path="D:/git/uf_api/src/Definition" file="Getter.php" realpath="D:/git/uf_api/src/Definition/Getter.php" size="278" time="2017-09-20T20:02:07+02:00" unixtime="1505930527" sha1="00f8f07795653406829f2b7defde6207bb149f03" relative="Definition/Getter.php"/>
+  <docblock>
+    <description compact="Mold for object that grabs the information from each web page."/>
+    <author value="Aldarien"/>
+  </docblock>
+  <method name="get" start="15" end="15" abstract="false" final="false" static="false" visibility="public">
+    <docblock>
+      <description compact="Get all the information for the year."/>
+      <param type="int" variable="$year"/>
+    </docblock>
+    <parameter name="year" byreference="false" type="int"/>
+  </method>
+  <implementors>
+    <class full="UF\API\Provider\SIIGetter" namespace="UF\API\Provider" name="SIIGetter"/>
+    <class full="UF\API\Provider\ValorUFGetter" namespace="UF\API\Provider" name="ValorUFGetter"/>
+  </implementors>
+</interface>

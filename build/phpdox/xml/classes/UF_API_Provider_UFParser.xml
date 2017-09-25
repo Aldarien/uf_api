@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class xmlns="http://xml.phpdox.net/src" full="UF\API\Provider\UFParser" namespace="UF\API\Provider" name="UFParser" abstract="false" final="false" start="13" end="102">
+  <file path="D:/git/uf_api/src/Provider" file="UFParser.php" realpath="D:/git/uf_api/src/Provider/UFParser.php" size="2561" time="2017-09-25T17:27:19+02:00" unixtime="1506353239" sha1="0d9e543715fd3093e0348980e75e25efd1f67076" relative="Provider/UFParser.php"/>
+  <docblock>
+    <description compact="Handles the getters' information and interacts with the database"/>
+    <author value="Aldarien"/>
+  </docblock>
+  <method name="getAll" start="19" end="27" abstract="false" final="false" static="false" visibility="public">
+    <docblock>
+      <description compact="Get from all getters specified"/>
+      <param type="array" variable="$getters"/>
+    </docblock>
+    <parameter name="getters" byreference="false" type="array"/>
+  </method>
+  <method name="get" start="32" end="40" abstract="false" final="false" static="false" visibility="public">
+    <docblock>
+      <description compact="Get all the data from the getter and saves what is not in the database."/>
+      <param type="object" variable="$getter">
+        <type full="UF\API\Definition\Getter" namespace="UF\API\Definition" name="Getter"/>
+      </param>
+    </docblock>
+    <parameter name="getter" byreference="false" type="object">
+      <type full="UF\API\Definition\Getter" namespace="UF\API\Definition" name="Getter"/>
+    </parameter>
+  </method>
+  <method name="checkYear" start="46" end="60" abstract="false" final="false" static="false" visibility="public">
+    <docblock>
+      <description compact="Checks if the year is saved in the database."/>
+      <param type="int" variable="$year"/>
+      <return type="boolean"/>
+    </docblock>
+    <parameter name="year" byreference="false" type="int"/>
+  </method>
+  <method name="findGetter" start="61" end="67" abstract="false" final="false" static="false" visibility="public">
+    <parameter name="getter_name" byreference="false" type="string"/>
+  </method>
+  <method name="listGetters" start="68" end="76" abstract="false" final="false" static="false" visibility="public"/>
+  <method name="getYear" start="77" end="96" abstract="false" final="false" static="false" visibility="public">
+    <parameter name="getter" byreference="false" type="object">
+      <type full="UF\API\Definition\Getter" namespace="UF\API\Definition" name="Getter"/>
+    </parameter>
+    <parameter name="year" byreference="false" type="int"/>
+  </method>
+  <method name="addTime" start="97" end="101" abstract="false" final="false" static="false" visibility="protected">
+    <parameter name="seconds" byreference="false" type="{unknown}"/>
+  </method>
+</class>

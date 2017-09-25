@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<source xmlns="http://xml.phpdox.net/src">
+  <dir name="D:/git/uf_api/src">
+    <dir name="Definition">
+      <file name="Getter.php" size="278" time="2017-09-20T20:02:07+02:00" unixtime="1505930527" sha1="00f8f07795653406829f2b7defde6207bb149f03" xml="tokens/Definition/Getter.php.xml"/>
+    </dir>
+    <dir name="Model">
+      <file name="UF.php" size="679" time="2017-09-20T20:02:07+02:00" unixtime="1505930527" sha1="ad31a8cf229e2333cd78ab15028b932150a1c29a" xml="tokens/Model/UF.php.xml"/>
+    </dir>
+    <dir name="Provider">
+      <file name="SIIGetter.php" size="2350" time="2017-09-20T20:02:07+02:00" unixtime="1505930527" sha1="f5818cc28658a99c4486a8743a59192efc99ab6a" xml="tokens/Provider/SIIGetter.php.xml"/>
+      <file name="UFParser.php" size="2561" time="2017-09-25T17:27:19+02:00" unixtime="1506353239" sha1="0d9e543715fd3093e0348980e75e25efd1f67076" xml="tokens/Provider/UFParser.php.xml"/>
+      <file name="ValorUFGetter.php" size="2394" time="2017-09-20T20:02:07+02:00" unixtime="1505930527" sha1="a9df0dd21d1ab3d24c1b107ba1e636438f7a38bf" xml="tokens/Provider/ValorUFGetter.php.xml"/>
+    </dir>
+  </dir>
+</source>

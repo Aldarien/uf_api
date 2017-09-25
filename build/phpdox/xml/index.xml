@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<index xmlns="http://xml.phpdox.net/src" basedir="D:/git/uf_api/src">
+  <namespace name="UF\API\Definition">
+    <interface name="Getter" src="Definition/Getter.php" description="Mold for object that grabs the information from each web page." xml="interfaces/UF_API_Definition_Getter.xml"/>
+  </namespace>
+  <namespace name="UF\API\Model">
+    <class name="UF" src="Model/UF.php" description="UF handler, with Paris Model structure." xml="classes/UF_API_Model_UF.xml"/>
+  </namespace>
+  <namespace name="UF\API\Provider">
+    <class name="SIIGetter" src="Provider/SIIGetter.php" description="Getter from http://www.sii.cl" xml="classes/UF_API_Provider_SIIGetter.xml"/>
+    <class name="UFParser" src="Provider/UFParser.php" description="Handles the getters' information and interacts with the database" xml="classes/UF_API_Provider_UFParser.xml"/>
+    <class name="ValorUFGetter" src="Provider/ValorUFGetter.php" description="Getter from http://www.valoruf.cl" xml="classes/UF_API_Provider_ValorUFGetter.xml"/>
+  </namespace>
+</index>

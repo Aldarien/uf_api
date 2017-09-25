@@ -51,9 +51,8 @@ class UFParser
             return false;
 			/*$today = Carbon::today(new \DateTimeZone(config('app.timezone')));
 			$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $today->format('Y-m-d'))->findOne();*/
-		} else {
-			$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $year . '-12-31')->findOne();
 		}
+		$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $year . '-12-31')->findOne();
 		if ($uf1 and $uf2) {
 			return true;
 		}

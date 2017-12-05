@@ -45,19 +45,22 @@ class UFParser
 	 */
 	public function checkYear(int $year)
 	{
-		$uf1 = \Model::factory('\UF\API\Model\UF')->where('fecha', $year . '-01-01')->findOne();
 		$y = date('Y');
 		if ($y == $year) {
             return false;
-			/*$today = Carbon::today(new \DateTimeZone(config('app.timezone')));
-			$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $today->format('Y-m-d'))->findOne();*/
 		}
-		$uf2 = \Model::factory('\UF\API\Model\UF')->where('fecha', $year . '-12-31')->findOne();
-		if ($uf1 and $uf2) {
+		$d1 = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '%')->count('id');
+		$d0 = Carbon::parse($year . '-01-01');
+		if ($d1 = (365 + $d0->format('L'))) {
 			return true;
 		}
 		return false;
 	}
+	/**
+	 * Find the getter in the configuration
+	 * @param string $getter_name
+	 * @return Getter|NULL
+	 */
 	public function findGetter(string $getter_name)
 	{
 		if ($class = config('getters.' . $getter_name . '.class')) {
@@ -65,6 +68,10 @@ class UFParser
 		}
 		return null;
 	}
+	/**
+	 * Get an array of getters in the configuration
+	 * @return Getter[]
+	 */
 	public function listGetters()
 	{
 		$data = config('getters');
@@ -74,6 +81,12 @@ class UFParser
 		}
 		return $getters;
 	}
+	/**
+	 * Get all values for $year from Getter $getter
+	 * @param Getter $getter
+	 * @param int $year
+	 * @return boolean
+	 */
 	public function getYear(Getter $getter, int $year) {
         $this->addTime(3*60);
         $ufs = $getter->get($year);
@@ -81,9 +94,8 @@ class UFParser
 			return false;
 		}
 
-        $tz = new \DateTimeZone(config('app.timezone'));
-		foreach ($ufs as $date => $value) {
-			$f = Carbon::parse($date, $tz);
+        foreach ($ufs as $date => $value) {
+			$f = Carbon::parse($date, config('app.timezone'));
 			$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $f->format('Y-m-d'))->findOne();
 			if (!$uf) {
 				$uf = \Model::factory('\UF\API\Model\UF')->create();
@@ -94,6 +106,10 @@ class UFParser
 		}
 		return true;
 	}
+	/**
+	 * Add to execution time
+	 * @param int $seconds
+	 */
     protected function addTime($seconds)
     {
         $max = ini_get('max_execution_time');

@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use Carbon\Carbon;
 use UF\API\Provider\UFParser;
+use UF\API\Model\UF;
 
 class UFApi
 {
@@ -54,10 +55,10 @@ class UFApi
 		if ($date > $next_9) {
             return api(false, 204);
         } else {
-            $uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'))->findOne();
+            $uf = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'))->findOne();
 			if (!$uf) {
 				self::load();
-				$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'))->findOne();
+				$uf = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'))->findOne();
 			}
             $output = ['uf' => ['date' => $date->format('Y-m-d'), 'value' => $uf->valor], 'total' => 1];
             return api($output);
@@ -73,16 +74,16 @@ class UFApi
         }
         $month = input('month');
         if ($month != null) {
-        	$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha')->findMany();
+        	$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha')->findMany();
         } else {
-            $ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '%')->orderByAsc('fecha')->findMany();
+            $ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '%')->orderByAsc('fecha')->findMany();
         }
         if (count($ufs) == 0) {
         	self::load();
         	if ($month != null) {
-        		$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha')->findMany();
+        		$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha')->findMany();
         	} else {
-        		$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '%')->orderByAsc('fecha')->findMany();
+        		$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '%')->orderByAsc('fecha')->findMany();
         	}
         }
         $output = ['total' => count($ufs)];
@@ -121,7 +122,7 @@ class UFApi
     	if ($date > $next_9) {
     		return api(false, 204);
     	} else {
-    		$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'))->findOne();
+    		$uf = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'))->findOne();
     		switch (strtolower($type)) {
     			case 'uf':
     			case 'clf':
@@ -272,13 +273,13 @@ class UFApi
 					if ($date > $next_9) {
 						return api(false, 204);
 					} else {
-						$ufs = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'));
+						$ufs = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'));
 					}
 				} else {
-					$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha');
+					$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha');
 				}
 			} else {
-				$ufs = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '%')->orderByAsc('fecha');
+				$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '%')->orderByAsc('fecha');
 			}
 		} else {
 			if ($date) {
@@ -287,10 +288,10 @@ class UFApi
 				if ($date > $next_9) {
 					return api(false, 204);
 				} else {
-					$ufs = \Model::factory('\UF\API\Model\UF')->where('fecha', $date->format('Y-m-d'));
+					$ufs = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'));
 				}
 			} else {
-				$ufs = \Model::factory('\UF\API\Model\UF');
+				$ufs = \Model::factory(UF::class);
 			}
 		}
 		if (count($ufs) > 100) {

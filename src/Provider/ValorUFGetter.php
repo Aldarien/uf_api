@@ -24,11 +24,11 @@ class ValorUFGetter implements Getter
 	 * @var GuzzleHttp\Client
 	 */
 	protected $client;
-	
+
 	public function __construct()
 	{
 		$this->getter = 'valoruf';
-		$this->client = new Client(['base_uri' => config('getters.' . $this->getter . '.url')]);
+		$this->client = new Client(['base_uri' => config('getters.uf.' . $this->getter . '.url')]);
 	}
 	/**
 	 * Gets the crawler for the web page according to the configuration file
@@ -37,14 +37,14 @@ class ValorUFGetter implements Getter
 	 */
 	protected function getCrawler(int $year)
 	{
-		$getter = 'getters.' . $this->getter;
+		$getter = 'getters.uf.' . $this->getter;
 		$url = str_replace('<year>', $year, config($getter . '.part'));
 		try {
 			$request = $this->client->request('GET', $url);
 		} catch (ClientException $e) {
 			return false;
 		}
-		
+
 		if ($request->getStatusCode() != 200) {
 			return false;
 		}
@@ -54,7 +54,7 @@ class ValorUFGetter implements Getter
 		return $crawler;
 	}
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \Money\Definition\Getter::get()
 	 */
@@ -65,7 +65,7 @@ class ValorUFGetter implements Getter
 			return false;
 		}
 		$nodes = $crawler->filter('.container .jumbotron .col-lg-12 tr>td.text-right:nth-child(2)');
-		
+
 		$ufs = [];
 		$tz = new \DateTimeZone(config('app.timezone'));
 		$today = Carbon::today($tz);
@@ -78,7 +78,7 @@ class ValorUFGetter implements Getter
 					continue;
 				}
 				$n ++;
-				
+
 				try {
 					$node = $nodes->eq($n);
 					$puf = $node->text();
@@ -86,13 +86,13 @@ class ValorUFGetter implements Getter
 						continue;
 					}
 					$uf = (float) trim(str_replace('$', '', str_replace(',', '.', str_replace('.', '', $puf))));
-					
+
 					$ufs[$fecha->format('Y-m-d')] = $uf;
 				} catch (\InvalidArgumentException $e) {
 				}
 			}
 		}
-		
+
 		return $ufs;
 	}
 }

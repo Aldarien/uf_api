@@ -49,7 +49,7 @@ class UFParser
 		if ($y == $year) {
             return false;
 		}
-		$d1 = \Model::factory('\UF\API\Model\UF')->whereLike('fecha', $year . '%')->count('id');
+		$d1 = \Model::factory(UF::class)->whereLike('fecha', $year . '%')->count('id');
 		$d0 = Carbon::parse($year . '-01-01');
 		if ($d1 = (365 + $d0->format('L'))) {
 			return true;
@@ -63,7 +63,7 @@ class UFParser
 	 */
 	public function findGetter(string $getter_name)
 	{
-		if ($class = config('getters.' . $getter_name . '.class')) {
+		if ($class = config('getters.uf.' . $getter_name . '.class')) {
 			return new $class();
 		}
 		return null;
@@ -96,9 +96,9 @@ class UFParser
 
         foreach ($ufs as $date => $value) {
 			$f = Carbon::parse($date, config('app.timezone'));
-			$uf = \Model::factory('\UF\API\Model\UF')->where('fecha', $f->format('Y-m-d'))->findOne();
+			$uf = \Model::factory(UF::class)->where('fecha', $f->format('Y-m-d'))->findOne();
 			if (!$uf) {
-				$uf = \Model::factory('\UF\API\Model\UF')->create();
+				$uf = \Model::factory(UF::class)->create();
 				$uf->fecha = $f;
 				$uf->valor = $value;
 				$uf->save();

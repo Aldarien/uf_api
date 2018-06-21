@@ -74,7 +74,7 @@ class UFParser
 	 */
 	public function listGetters()
 	{
-		$data = config('getters');
+		$data = config('getters.uf');
 		$getters = [];
 		foreach ($data as $get) {
 			$getters []= new $get['class']();

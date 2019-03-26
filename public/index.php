@@ -1,7 +1,7 @@
 <?php
-use App\Controller\UFApi;
+include_once dirname(__DIR__) . '/bootstrap/public.php';
 
-include_once dirname(__DIR__) . '/bootstrap/autoload.php';
-
-echo UFApi::index();
+$routes = new UF\API\Routes($app);
+$routes->register();
+$app->run();
 ?>

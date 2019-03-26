@@ -2,109 +2,135 @@
 namespace App\Controller;
 
 use Carbon\Carbon;
+use App\Service\Factory;
 use UF\API\Provider\UFParser;
 use UF\API\Model\UF;
 
-class UFApi
+class UFApi extends Controller
 {
-  public static function index()
-  {
-  	$cmd = strtolower(input('cmd'));
+  protected $start;
+
+  protected function start() {
+    $this->start = microtime(true);
+  }
+
+  public function index($request, $response, $arguments) {
+  	$cmd = strtolower($arguments['cmd']);
   	switch ($cmd) {
   		case 'value':
-  			return self::value();
+  			return $this->value($request, $response, $arguments);
   		case 'list':
-  			return self::ufs();
+  			return $this->ufs($request, $response, $arguments);
   		case 'transform':
-  			return self::transform();
+  			return $this->transform($request, $response, $arguments);
   		case 'setup':
-  			return self::setup();
+  			return $this->setup($request, $response, $arguments);
   		case 'load':
-  			return self::load();
+  			return $this->load($request, $response, $arguments);
   		case 'remove':
   		case 'delete':
-  			return self::remove();
+  			return $this->remove($request, $response, $arguments);
   		case 'help':
-  			return self::help();
+  			return $this->help($request, $response, $arguments);
   	}
   }
-  public static function value()
-  {
-  	$tz = new \DateTimeZone(config('app.timezone'));
-		$date = Carbon::parse(input('date'), $tz);
-		$year = input('year');
-		$month = input('month');
-		$day = input('day');
-		$today = Carbon::today($tz);
-		if ($year or $month or $day) {
-			if (!$year) {
-				$year = $today->year;
-			}
-			if (!$month) {
-				$month = $today->month;
-			}
-			if (!$day) {
-				$day = $today->day;
-			}
-			$date = Carbon::createFromDate($year, $month, $day, $tz);
-		}
-		if (!$date) {
-			$date = $today->copy();
-		}
-    $next_9 = $today->copy()->addMonth(1)->day(9);
+  protected function buildOutput(array $data, int $status = 200) {
+    $output = [
+      'status' => $status,
+      'output' => $data,
+      'time' => microtime(true) - $this->start
+    ];
+    return $output;
+  }
+  protected function parseDate($arguments) {
+    $tz = $this->container->settings['app']['timezone'];
+    if (!isset($arguments['month'])) {
+      return Carbon::parse($arguments['arg'], $tz);
+    }
+
+    $today = Carbon::today($tz);
+    if (isset($arguments['arg']) or isset($arguments['month']) or isset($arguments['day'])) {
+      $year = $today->year;
+      if (isset($arguments['arg'])) {
+        $year = $arguments['arg'];
+      }
+      $month = $today->month;
+      if (isset($arguments['month'])) {
+        $month = $arguments['month'];
+      }
+      $day = $today->day;
+      if (isset($arguments['day'])) {
+        $day = $arguments['day'];
+      }
+      return Carbon::createFromDate($year, $month, $day, $tz);
+    }
+    return $today->copy();
+  }
+  protected function getNext() {
+    $tz = $this->container->settings['app']['timezone'];
+    $today = Carbon::today($tz);
+    return $today->copy()->addMonth(1)->day(9);
+  }
+  protected function getUF($search, $many = false) {
+    $uf = (new Factory(UF::class))->where($search)->find($many);
+    if (!$uf) {
+      $this->load();
+      return $this->getUF($search);
+    }
+    return $uf;
+  }
+  public function value($request, $response, $arguments) {
+    $this->start();
+    $date = $this->parseDate($arguments);
+    $next_9 = $this->getNext();
 		if ($date > $next_9) {
-      return api(false, 204);
+      return $response->withStatus(204);
+      //return api(false, 204);
     } else {
-      $uf = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'))->findOne();
-			if (!$uf) {
-				self::load();
-				$uf = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'))->findOne();
-			}
+      //$uf = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'))->findOne();
+      $uf = $this->getUF(['fecha', $date->format('Y-m-d')]);
       if (!isset($uf->valor)) {
         $output = ['total' => 0];
       } else {
         $output = ['uf' => ['date' => $date->format('Y-m-d'), 'value' => $uf->valor], 'total' => 1];
       }
-      return api($output);
+      return $response->withJSON($this->build($output));
+      //return api($output);
     }
   }
-  public static function ufs()
-  {
-    $year = input('year');
-    if ($year == null) {
-    	$tz = new \DateTimeZone(config('app.timezone'));
-      $today = Carbon::today($tz);
-      $year = $today->year;
+  public function ufs($request, $response, $arguments) {
+    $this->start();
+    $tz = $this->container->settings['app']['timezone'];
+    $today = Carbon::today($tz);
+    $year = $today->year;
+    if (isset($arguments['year'])) {
+      $year = $arguments['year'];
     }
-    $month = input('month');
-    if ($month != null) {
-    	$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha')->findMany();
+    if (isset($arguments['month'])) {
+      $month = $arguments['month'];
+    	//$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha')->findMany();
+      $find = $year . '-' . $month . '%';
     } else {
-      $ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '%')->orderByAsc('fecha')->findMany();
+      //$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '%')->orderByAsc('fecha')->findMany();
+      $find = $year . '%';
     }
-    if (count($ufs) == 0) {
-    	self::load();
-    	if ($month != null) {
-    		$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '-' . $month . '%')->orderByAsc('fecha')->findMany();
-    	} else {
-    		$ufs = \Model::factory(UF::class)->whereLike('fecha', $year . '%')->orderByAsc('fecha')->findMany();
-    	}
-    }
+    $ufs = (new Factory(UF::class))->where(['fecha', $find, 'like'])->order(['fecha'])->find(true);
     $output = ['total' => count($ufs)];
     foreach ($ufs as $uf) {
       $output['ufs'] []= ['date' => $uf->fecha, 'value' => $uf->valor];
     }
-    return api($output);
+    return $response->withJSON($this->buildOutput($output));
+    //return api($output);
   }
-  public static function transform()
-  {
-  	$type = input('to');
-  	$value = input('value');
-  	$tz = new \DateTimeZone(config('app.timezone'));
-  	$date = Carbon::parse(input('date'), $tz);
-  	$year = input('year');
-  	$month = input('month');
-  	$day = input('day');
+  public function transform($request, $response, $arguments) {
+    $this->start();
+    $type = $arguments['to'];
+  	$value = $arguments['value'];
+  	/*$tz = new \DateTimeZone(config('app.timezone'));
+  	$date = Carbon::parse($arguments['date'], $tz);
+  	$year = $arguments['year'];
+  	$month = $arguments['month'];
+  	$day = $arguments['day'];
 
   	$today = Carbon::today($tz);
   	if ($year or $month or $day) {
@@ -121,12 +147,16 @@ class UFApi
   	}
   	if (!$date) {
   		$date = $today->copy();
-  	}
-  	$next_9 = $today->copy()->addMonth(1)->day(9);
+  	}*/
+    $date = $this->parseDate($arguments);
+  	//$next_9 = $today->copy()->addMonth(1)->day(9);
+  	$next_9 = $this->getNext();
   	if ($date > $next_9) {
-  		return api(false, 204);
+      return $response->withStatus(204);
+  		//return api(false, 204);
   	} else {
-  		$uf = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'))->findOne();
+  		//$uf = \Model::factory(UF::class)->where('fecha', $date->format('Y-m-d'))->findOne();
+      $uf = $this->getUF(['fecha' => $date->format('Y-m-d')]);
   		switch (strtolower($type)) {
   			case 'uf':
   			case 'clf':
@@ -145,11 +175,11 @@ class UFApi
   			'from' => $value,
   			'to' => $result
   		];
-  		return api($output);
+      return $response->withJSON($this->buildOutput($output));
+  		//return api($output);
   	}
   }
-  public static function help()
-  {
+  public function help($request, $response, $arguments) {
   	$output = [];
   	$output['commands'] = [
       'uf' => [
@@ -209,64 +239,80 @@ class UFApi
   			]
       ]
   	];
-  	return api($output);
+    return $response->withJSON($output);
+  	//return api($output);
   }
 
-  public static function setup()
-  {
+  public function setup($request, $response, $arguments) {
   	$start = microtime(true);
-  	self::loadUF();
-  	return api(['status' => 'ok', 'time' => microtime(true) - $start]);
+  	$this->loadUF();
+    return $response->withJSON($this->buildOutput(['status' => 'ok']));
+  	//return api(['status' => 'ok', 'time' => microtime(true) - $start]);
   }
-  protected static function loadUF()
-  {
+  protected function loadUF() {
   	$parser = new UFParser();
   	$getters = $parser->listGetters();
   	$parser->getAll($getters);
   }
-  public static function load()
-  {
-  	$year = input('year');
-  	$getter = input('getter');
+  public function load($request, $response, $arguments) {
+  	$year = $arguments['year'];
   	$parser = new UFParser();
-  	$start = microtime(true);
+  	//$start = microtime(true);
+  	$this->start();
 
   	$getters = [];
-  	if ($getter == null) {
+  	if (!isset($arguments['getter'])) {
   		$getters = $parser->listGetters();
   	} else {
+      $getter = $arguments['getter'];
   		$getters = $parser->findGetter($getter);
   	}
-    if ($year == null) {
-      $date = input('date');
-      if ($date != null) {
-        $tz = new \DateTimeZone(config('app.timezone'));
+    /*if (!isset($arguments['year'])) {
+      if (isset($arguments['year'])) {
+        $date = $arguments['year'];
+        $tz = $this->container->settings['app']['timezone'];
         $date = Carbon::parse($date, $tz);
         $year = $date->year;
       }
-    }
-  	if ($year == null) {
+    }*/
+  	if (!isset($arguments['year'])) {
       foreach ($getters as $getter) {
   			$parser->get($getter);
   		}
   	} else {
+      $year = $arguments['year'];
   		foreach ($getters as $getter) {
   			$parser->getYear($getter, $year);
   		}
   	}
-  	return api(['status' => 'ok', 'getters' => count($getters), 'time' => microtime(true) - $start]);
+    return $response->withJSON($this->buildOutput(['status' => 'ok', 'getters' => count($getters)]));
+  	//return api(['status' => 'ok', 'getters' => count($getters), 'time' => microtime(true) - $start]);
   }
-  public static function remove()
-  {
-		$start = microtime(true);
-		$tz = new \DateTimeZone(config('app.timezone'));
-		$date = input('date');
-		$year = input('year');
-		$month = input('month');
-		$day = input('day');
+  public function remove($request, $response, $arguments) {
+		$this->start();
+    $date = $this->parseDate($arguments);
+    /*$tz = new \DateTimeZone(config('app.timezone'));
+		$date = $arguments['date'];
+		$year = $arguments['year'];
+		$month = $arguments['month'];
+		$day = $arguments['day'];
 
-		$today = Carbon::today($tz);
-		if ($year or $month or $day) {
+		$today = Carbon::today($tz);*/
+    $next_9 = $this->getNext();
+    if ($date > $next_9) {
+      return $response->withStatus(204);
+    }
+    $find = $date->year . '%';
+    $like = true;
+    if (isset($arguments['month'])) {
+      $find = $date->year . '-' . $date->month . '%';
+    }
+    if (isset($day)) {
+      $find = $date->format('Y-m-d');
+      $like = false;
+    }
+    $ufs = $this->getUF(['fecha', $find, $like], true);
+		/*if ($year or $month or $day) {
 			if ($year == null) {
 				$year = $today->year;
 			}
@@ -288,7 +334,7 @@ class UFApi
 			}
 		} else {
 			if ($date) {
-				$date = Carbon::parse(input('date'), $tz);
+				$date = Carbon::parse($arguments['date'], $tz);
 				$next_9 = $today->copy()->addMonth(1)->day(9);
 				if ($date > $next_9) {
 					return api(false, 204);
@@ -298,14 +344,15 @@ class UFApi
 			} else {
 				$ufs = \Model::factory(UF::class);
 			}
-		}
+		}*/
 		if (count($ufs) > 100) {
 			set_time_limit(count($ufs) * 3);
 		}
     $cnt = $ufs->count();
 		$status = ($ufs->deleteMany()) ? 'ok' : 'error';
-		$output = ['status' => $status, 'total' => $cnt, 'time' => microtime(true) - $start];
-		return api($output);
+		$output = ['status' => $status, 'total' => $cnt];
+    return $response->withJSON($this->buildOutput($output));
+		//return api($output);
 	}
 }
 ?>
